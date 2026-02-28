@@ -41,9 +41,9 @@
   - [x] SubTask 6.1: 提交所有代码修改
   - [x] SubTask 6.2: 推送到远程仓库
 
-- [ ] Task 7: 更新文档
-  - [ ] SubTask 7.1: 更新操作手册
-  - [ ] SubTask 7.2: 更新README文档
+- [x] Task 7: 更新文档
+  - [x] SubTask 7.1: 更新操作手册
+  - [x] SubTask 7.2: 更新README文档
 
 # Task Dependencies
 - [Task 2] depends on [Task 1]

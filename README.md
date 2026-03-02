@@ -231,4 +231,4 @@ type 类型：
 
 ## 相关项目
 
-- 前端项目: [Anime_Website](https://github.com/MCG2053/Anime_Website)
+- 前端项目: [Anime_Website](https://github.com/MCG2053/AI-Anime-website)

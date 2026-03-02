@@ -6,7 +6,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "comment_likes")
+@Table(name = "comment_likes", indexes = {
+    @Index(name = "idx_comment_like_user_id", columnList = "user_id"),
+    @Index(name = "idx_comment_like_comment_id", columnList = "comment_id"),
+    @Index(name = "idx_comment_like_user_comment", columnList = "user_id, comment_id")
+})
 public class CommentLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

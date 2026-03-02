@@ -4,6 +4,7 @@ import com.anime.website.dto.*;
 import com.anime.website.entity.*;
 import com.anime.website.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ public class CategoryService {
     
     private final CategoryRepository categoryRepository;
     
+    @Cacheable(value = "categories")
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll()
                 .stream()

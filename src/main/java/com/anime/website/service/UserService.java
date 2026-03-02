@@ -4,6 +4,7 @@ import com.anime.website.dto.*;
 import com.anime.website.entity.User;
 import com.anime.website.repository.*;
 import com.anime.website.security.JwtTokenProvider;
+import com.anime.website.util.XssUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -76,13 +77,14 @@ public class UserService {
     
     @Transactional
     public UserDTO updateUserInfo(User user, UpdateUserRequest request) {
-        if (!user.getUsername().equals(request.getUsername()) && 
-            userRepository.existsByUsername(request.getUsername())) {
+        String newUsername = XssUtil.sanitize(request.getUsername());
+        if (!user.getUsername().equals(newUsername) && 
+            userRepository.existsByUsername(newUsername)) {
             throw new RuntimeException("用户名已被使用");
         }
         
-        user.setUsername(request.getUsername());
-        user.setBio(request.getBio());
+        user.setUsername(newUsername);
+        user.setBio(request.getBio() != null ? XssUtil.sanitize(request.getBio()) : null);
         user = userRepository.save(user);
         
         return convertToDTO(user);

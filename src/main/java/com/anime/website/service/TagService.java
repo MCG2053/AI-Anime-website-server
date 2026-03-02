@@ -21,13 +21,6 @@ public class TagService {
                 .collect(Collectors.toList());
     }
     
-    public List<TagDTO> getTagsByType(String type) {
-        return tagRepository.findByType(type)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-    
     private TagDTO convertToDTO(Tag tag) {
         TagDTO dto = new TagDTO();
         dto.setId(tag.getId());

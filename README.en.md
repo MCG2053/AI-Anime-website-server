@@ -5,13 +5,13 @@ A Spring Boot 3 based backend service for anime website, providing complete feat
 ## Tech Stack
 
 - **Java 17**
-- **Spring Boot 3.2.1**
+- **Spring Boot 3.5.11**
 - **Spring Security** - Security framework
 - **Spring Data JPA** - Data persistence
 - **MySQL** - Database
 - **Redis** - Cache
-- **JWT** - Authentication
-- **Swagger/OpenAPI** - API documentation
+- **JWT (JJWT 0.12.6)** - Authentication
+- **Swagger/OpenAPI (springdoc 2.8.16)** - API documentation
 
 ## Features
 

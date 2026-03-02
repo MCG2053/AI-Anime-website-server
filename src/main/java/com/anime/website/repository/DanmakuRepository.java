@@ -20,6 +20,4 @@ public interface DanmakuRepository extends JpaRepository<Danmaku, Long> {
     Long countByVideoIdAndEpisodeId(Long videoId, Long episodeId);
     Long countByVideoIdAndType(Long videoId, String type);
     Long countByVideoIdAndEpisodeIdAndType(Long videoId, Long episodeId, String type);
-    
-    Optional<Danmaku> findByIdAndUserId(Long id, Long userId);
 }

@@ -3,6 +3,7 @@ package com.anime.website.service;
 import com.anime.website.dto.*;
 import com.anime.website.entity.*;
 import com.anime.website.repository.*;
+import com.anime.website.util.XssUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,36 @@ public class CommentService {
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
     
-    public PageResponse<CommentDTO> getComments(Long videoId, Integer page, Integer pageSize, User currentUser) {
+    public PageResponse<CommentDTO> getComments(Long videoId, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Comment> commentPage = commentRepository.findByVideoIdAndParentIdIsNull(videoId, pageable);
         
+        List<Long> userIds = commentPage.getContent().stream()
+                .map(Comment::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, User> userMap = userRepository.findAllById(userIds)
+                .stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+        
+        List<Long> commentIds = commentPage.getContent().stream()
+                .map(Comment::getId)
+                .collect(Collectors.toList());
+        List<Comment> allReplies = commentRepository.findRepliesByParentIds(commentIds);
+        
+        Map<Long, List<Comment>> repliesMap = allReplies.stream()
+                .collect(Collectors.groupingBy(Comment::getParentId));
+        
+        Set<Long> replyUserIds = allReplies.stream()
+                .map(Comment::getUserId)
+                .collect(Collectors.toSet());
+        userMap.putAll(userRepository.findAllById(replyUserIds)
+                .stream()
+                .collect(Collectors.toMap(User::getId, u -> u)));
+        
         List<CommentDTO> commentDTOs = commentPage.getContent()
                 .stream()
-                .map(c -> convertToDTO(c, currentUser))
+                .map(c -> convertToDTO(c, userMap, repliesMap))
                 .collect(Collectors.toList());
         
         return PageResponse.of(commentDTOs, commentPage.getTotalElements(), page, pageSize);
@@ -39,12 +63,13 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setUserId(user.getId());
         comment.setVideoId(request.getVideoId());
-        comment.setContent(request.getContent());
+        // XSS过滤评论内容
+        comment.setContent(XssUtil.sanitize(request.getContent()));
         comment.setParentId(request.getParentId());
         
         comment = commentRepository.save(comment);
         
-        return convertToDTO(comment, user);
+        return convertToDTO(comment, Map.of(user.getId(), user), Map.of());
     }
     
     @Transactional
@@ -96,13 +121,13 @@ public class CommentService {
         
         List<CommentDTO> commentDTOs = commentPage.getContent()
                 .stream()
-                .map(c -> convertToDTO(c, user))
+                .map(c -> convertToDTO(c, Map.of(user.getId(), user), Map.of()))
                 .collect(Collectors.toList());
         
         return PageResponse.of(commentDTOs, commentPage.getTotalElements(), page, pageSize);
     }
     
-    private CommentDTO convertToDTO(Comment comment, User currentUser) {
+    private CommentDTO convertToDTO(Comment comment, Map<Long, User> userMap, Map<Long, List<Comment>> repliesMap) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
         dto.setUserId(comment.getUserId());
@@ -110,15 +135,16 @@ public class CommentService {
         dto.setLikeCount(comment.getLikeCount());
         dto.setCreatedAt(comment.getCreatedAt());
         
-        userRepository.findById(comment.getUserId()).ifPresent(user -> {
+        User user = userMap.get(comment.getUserId());
+        if (user != null) {
             dto.setUsername(user.getUsername());
             dto.setAvatar(user.getAvatar());
-        });
+        }
         
-        List<Comment> replies = commentRepository.findByParentId(comment.getId());
-        if (!replies.isEmpty()) {
+        List<Comment> replies = repliesMap.get(comment.getId());
+        if (replies != null && !replies.isEmpty()) {
             dto.setReplies(replies.stream()
-                    .map(r -> convertToDTO(r, currentUser))
+                    .map(r -> convertToDTO(r, userMap, repliesMap))
                     .collect(Collectors.toList()));
         }
         

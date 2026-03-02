@@ -5,13 +5,13 @@
 ## 技术栈
 
 - **Java 17**
-- **Spring Boot 3.2.1**
+- **Spring Boot 3.5.11**
 - **Spring Security** - 安全框架
 - **Spring Data JPA** - 数据持久化
 - **MySQL** - 数据库
 - **Redis** - 缓存
-- **JWT** - 身份认证
-- **Swagger/OpenAPI** - API 文档
+- **JWT (JJWT 0.12.6)** - 身份认证
+- **Swagger/OpenAPI (springdoc 2.8.16)** - API 文档
 
 ## 功能特性
 

@@ -11,10 +11,6 @@ import java.util.List;
 
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
-    Page<Video> findByCategory(String category, Pageable pageable);
-    Page<Video> findByYear(Integer year, Pageable pageable);
-    Page<Video> findByCountry(String country, Pageable pageable);
-    
     @Query("SELECT v FROM Video v WHERE " +
            "(:category IS NULL OR v.category = :category) AND " +
            "(:year IS NULL OR v.year = :year) AND " +

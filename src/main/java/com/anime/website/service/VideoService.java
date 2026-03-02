@@ -4,6 +4,8 @@ import com.anime.website.dto.*;
 import com.anime.website.entity.*;
 import com.anime.website.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,11 +70,9 @@ public class VideoService {
                 .map(this::convertEpisodeToDTO)
                 .collect(Collectors.toList()));
         
-        List<VideoTag> videoTags = videoTagRepository.findByVideoId(id);
+        List<VideoTag> videoTags = videoTagRepository.findByVideoIdWithTag(id);
         List<String> tagNames = videoTags.stream()
-                .map(vt -> tagRepository.findById(vt.getTagId()))
-                .filter(Optional::isPresent)
-                .map(opt -> opt.get().getName())
+                .map(vt -> vt.getTag().getName())
                 .collect(Collectors.toList());
         dto.setTags(tagNames);
         
@@ -176,6 +176,7 @@ public class VideoService {
         return PageResponse.of(videoDTOs, videoPage.getTotalElements(), page, pageSize);
     }
     
+    @Cacheable(value = "popularVideos", key = "#limit")
     public List<VideoDTO> getPopularVideos(Integer limit) {
         return videoRepository.findPopularVideos(PageRequest.of(0, limit))
                 .stream()
@@ -183,6 +184,7 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "latestVideos", key = "#limit")
     public List<VideoDTO> getLatestVideos(Integer limit) {
         return videoRepository.findLatestVideos(PageRequest.of(0, limit))
                 .stream()
@@ -201,6 +203,7 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "weekSchedule")
     public Map<String, List<VideoDTO>> getWeekSchedule() {
         Map<String, List<VideoDTO>> schedule = new LinkedHashMap<>();
         String[] days = {"周一", "周二", "周三", "周四", "周五", "周六", "周日"};

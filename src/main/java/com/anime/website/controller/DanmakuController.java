@@ -7,6 +7,7 @@ import com.anime.website.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,8 @@ public class DanmakuController {
     @GetMapping("/videos/{videoId}/danmaku")
     @Operation(summary = "获取弹幕列表")
     public ResponseEntity<ApiResponse<List<DanmakuDTO>>> getDanmaku(
-            @PathVariable Long videoId,
-            @RequestParam(required = false) Long episodeId) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId,
+            @RequestParam(required = false) @Min(value = 1, message = "集数ID必须大于0") Long episodeId) {
         List<DanmakuDTO> response = danmakuService.getDanmaku(videoId, episodeId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -32,8 +33,8 @@ public class DanmakuController {
     @GetMapping("/videos/{videoId}/episodes/{episodeId}/danmaku")
     @Operation(summary = "按集数获取弹幕")
     public ResponseEntity<ApiResponse<List<DanmakuDTO>>> getDanmakuByEpisode(
-            @PathVariable Long videoId,
-            @PathVariable Long episodeId) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId,
+            @PathVariable @Min(value = 1, message = "集数ID必须大于0") Long episodeId) {
         List<DanmakuDTO> response = danmakuService.getDanmakuByEpisode(videoId, episodeId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -58,7 +59,7 @@ public class DanmakuController {
     @DeleteMapping("/danmaku/{danmakuId}")
     @Operation(summary = "删除弹幕")
     public ResponseEntity<ApiResponse<SuccessResponse>> deleteDanmaku(
-            @PathVariable Long danmakuId,
+            @PathVariable @Min(value = 1, message = "弹幕ID必须大于0") Long danmakuId,
             @CurrentUser User user) {
         danmakuService.deleteDanmaku(danmakuId, user);
         return ResponseEntity.ok(ApiResponse.success(SuccessResponse.of(true)));
@@ -67,8 +68,8 @@ public class DanmakuController {
     @GetMapping("/videos/{videoId}/danmaku/stats")
     @Operation(summary = "获取弹幕统计")
     public ResponseEntity<ApiResponse<DanmakuStatsDTO>> getDanmakuStats(
-            @PathVariable Long videoId,
-            @RequestParam(required = false) Long episodeId) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId,
+            @RequestParam(required = false) @Min(value = 1, message = "集数ID必须大于0") Long episodeId) {
         DanmakuStatsDTO response = danmakuService.getDanmakuStats(videoId, episodeId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -76,8 +77,8 @@ public class DanmakuController {
     @GetMapping("/videos/{videoId}/episodes/{episodeId}/danmaku/stats")
     @Operation(summary = "获取指定集数弹幕统计")
     public ResponseEntity<ApiResponse<DanmakuStatsDTO>> getDanmakuStatsByEpisode(
-            @PathVariable Long videoId,
-            @PathVariable Long episodeId) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId,
+            @PathVariable @Min(value = 1, message = "集数ID必须大于0") Long episodeId) {
         DanmakuStatsDTO response = danmakuService.getDanmakuStats(videoId, episodeId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -85,7 +86,7 @@ public class DanmakuController {
     @PostMapping("/danmaku/{danmakuId}/report")
     @Operation(summary = "举报弹幕")
     public ResponseEntity<ApiResponse<SuccessResponse>> reportDanmaku(
-            @PathVariable Long danmakuId,
+            @PathVariable @Min(value = 1, message = "弹幕ID必须大于0") Long danmakuId,
             @Valid @RequestBody DanmakuReportRequest request,
             @CurrentUser User user) {
         danmakuService.reportDanmaku(danmakuId, request.getReason(), user);

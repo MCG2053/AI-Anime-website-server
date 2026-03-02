@@ -3,6 +3,7 @@ package com.anime.website.service;
 import com.anime.website.dto.*;
 import com.anime.website.entity.*;
 import com.anime.website.repository.*;
+import com.anime.website.util.XssUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,8 @@ public class DanmakuService {
         danmaku.setVideoId(request.getVideoId());
         danmaku.setEpisodeId(request.getEpisodeId());
         danmaku.setUserId(user.getId());
-        danmaku.setContent(request.getContent());
+        // XSS过滤弹幕内容
+        danmaku.setContent(XssUtil.sanitize(request.getContent()));
         danmaku.setTime(request.getTime());
         danmaku.setColor(request.getColor() != null ? request.getColor() : "#ffffff");
         danmaku.setType(request.getType() != null ? request.getType() : "scroll");

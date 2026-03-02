@@ -7,6 +7,8 @@ import com.anime.website.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +63,7 @@ public class UserController {
     @Operation(summary = "更新头像")
     public ResponseEntity<ApiResponse<UserDTO>> updateAvatar(
             @CurrentUser User user,
-            @RequestBody UpdateAvatarRequest request) {
+            @Valid @RequestBody UpdateAvatarRequest request) {
         userService.updateAvatar(user, request.getAvatar());
         UserDTO response = userService.getUserInfo(user);
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -101,8 +103,8 @@ public class UserController {
     @Operation(summary = "获取用户评论列表")
     public ResponseEntity<ApiResponse<PageResponse<CommentDTO>>> getUserComments(
             @CurrentUser User user,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize) {
+            @RequestParam(defaultValue = "1") @Min(value = 1, message = "页码必须大于0") Integer page,
+            @RequestParam(defaultValue = "20") @Min(value = 1, message = "每页数量必须大于0") @Max(value = 100, message = "每页数量不能超过100") Integer pageSize) {
         PageResponse<CommentDTO> response = commentService.getUserComments(user, page, pageSize);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -127,7 +129,7 @@ public class UserController {
     @Operation(summary = "移除追番")
     public ResponseEntity<ApiResponse<SuccessResponse>> removeAnime(
             @CurrentUser User user,
-            @PathVariable Long videoId) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId) {
         userAnimeService.removeAnime(videoId, user);
         return ResponseEntity.ok(ApiResponse.success(SuccessResponse.of(true)));
     }
@@ -136,8 +138,8 @@ public class UserController {
     @Operation(summary = "更新追番状态")
     public ResponseEntity<ApiResponse<SuccessResponse>> updateAnimeStatus(
             @CurrentUser User user,
-            @PathVariable Long videoId,
-            @RequestBody UpdateAnimeStatusRequest request) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId,
+            @Valid @RequestBody UpdateAnimeStatusRequest request) {
         userAnimeService.updateAnimeStatus(videoId, request, user);
         return ResponseEntity.ok(ApiResponse.success(SuccessResponse.of(true)));
     }
@@ -146,8 +148,8 @@ public class UserController {
     @Operation(summary = "获取观看历史")
     public ResponseEntity<ApiResponse<PageResponse<WatchHistoryDTO>>> getWatchHistory(
             @CurrentUser User user,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize) {
+            @RequestParam(defaultValue = "1") @Min(value = 1, message = "页码必须大于0") Integer page,
+            @RequestParam(defaultValue = "20") @Min(value = 1, message = "每页数量必须大于0") @Max(value = 100, message = "每页数量不能超过100") Integer pageSize) {
         PageResponse<WatchHistoryDTO> response = userAnimeService.getWatchHistory(user, page, pageSize);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -165,7 +167,7 @@ public class UserController {
     @Operation(summary = "删除观看历史")
     public ResponseEntity<ApiResponse<SuccessResponse>> removeWatchHistory(
             @CurrentUser User user,
-            @PathVariable Long videoId) {
+            @PathVariable @Min(value = 1, message = "视频ID必须大于0") Long videoId) {
         userAnimeService.removeWatchHistory(videoId, user);
         return ResponseEntity.ok(ApiResponse.success(SuccessResponse.of(true)));
     }

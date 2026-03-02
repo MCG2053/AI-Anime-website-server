@@ -229,4 +229,4 @@ type:
 
 ## Related Projects
 
-- Frontend Project: [Anime_Website](https://github.com/MCG2053/Anime_Website)
+- Frontend Project: [AI-Anime-website](https://github.com/MCG2053/AI-Anime-website)
